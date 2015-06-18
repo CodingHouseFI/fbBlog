@@ -12,6 +12,19 @@ var CHBlog = {
         console.log("Client unauthenticated.")
       }
     });
+
+    var $currentPost = $("#current-post");
+    $("#posts").on("click", ".more", function() {
+      var miniPost = $(this).parents(".post");
+      var fullPost = CHBlog.posts[miniPost.data("postId")];
+      $currentPost.find(".author-name").text(fullPost.authorName);
+      $currentPost.find(".timestamp").text((new Date(fullPost.postTime)).toLocaleString());
+      $currentPost.find(".text").text(fullPost.text);
+
+      $currentPost.removeClass("hidden");
+      $("#posts").addClass("hidden");
+    });
+
   },
   fbLogin: function() {
     CHBlog.db.authWithOAuthRedirect("google", function(error) {
@@ -35,19 +48,24 @@ var CHBlog = {
       return false;
     });
 
-    var templatePost = $("#posts .post:last"), currentPost, fbPost, posts = [];
-    CHBlog.postsRef.on("value", function(snap) {
-      var fbPosts = snap.val();
-      for (key in fbPosts) {
-        fbPost = fbPosts[key]
-        currentPost = templatePost.clone().removeClass("hidden");
-        currentPost.find(".author-name").text(fbPost.authorName);
-        currentPost.find(".timestamp").text((new Date(fbPost.postTime)).toLocaleString());
-        currentPost.find(".text").text(fbPost.text);
-        posts.unshift(currentPost);
-      }
-      $("#posts").prepend(posts);
+    var templatePost = $("#posts .post:last"), currentPost;
+    CHBlog.postsRef.on("child_added", function(snap) {
+      var fbPost = snap.val(), postId = snap.key();
+      CHBlog.posts[postId] = fbPost;
+      currentPost = templatePost.clone().removeClass("hidden");
+      currentPost.data("postId", postId);
+      currentPost.find(".author-name").text(fbPost.authorName);
+      currentPost.find(".timestamp").text((new Date(fbPost.postTime)).toLocaleString());
+      currentPost.find(".text").text(CHBlog.truncate(fbPost.text));
+      $("#posts").prepend(currentPost);
     });
+  },
+
+  posts: {},
+
+  truncate: function(text) {
+    var length = text.length;
+    return length > 140 ? text.substring(0, 140) + "..." : text;
   }
 }
 
