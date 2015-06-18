@@ -278,3 +278,18 @@ textarea {
         page-break-after: avoid;
     }
 }
+
+.post {
+  border: thin solid #999;
+  margin: 1em auto;
+  padding: 1em;
+}
+
+.author-name {
+  font-weight: bold;
+}
+
+.timestamp {
+  color: #888;
+  font-size: 0.85em;
+}

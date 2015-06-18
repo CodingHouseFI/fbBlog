@@ -24,7 +24,29 @@ var CHBlog = {
   render: function() {
     console.log(CHBlog.currentUser);
     $("#user").text(CHBlog.currentUser.displayName);
+    var blog = $("#blog");
+    blog.find("form").submit(function() {
+      var postText = blog.find("textarea").val();
+      CHBlog.postsRef.push({
+        authorName: CHBlog.currentUser.displayName,
+        text: postText,
+        postTime: Firebase.ServerValue.TIMESTAMP
+      });
+      return false;
+    });
+
+    var templatePost = $("#posts .post:last"), currentPost;
+    CHBlog.postsRef.on("child_added", function(snap) {
+      var fbPost = snap.val();
+      currentPost = templatePost.clone().removeClass("hidden");
+      currentPost.find(".author-name").text(fbPost.authorName);
+      currentPost.find(".timestamp").text((new Date(fbPost.postTime)).toLocaleString());
+      currentPost.find(".text").text(fbPost.text);
+      $("#posts").prepend(currentPost);
+    });
   }
 }
+
+CHBlog.postsRef = CHBlog.db.child("posts");
 
 $(document).ready(CHBlog.init);
