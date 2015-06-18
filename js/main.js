@@ -35,14 +35,18 @@ var CHBlog = {
       return false;
     });
 
-    var templatePost = $("#posts .post:last"), currentPost;
-    CHBlog.postsRef.on("child_added", function(snap) {
-      var fbPost = snap.val();
-      currentPost = templatePost.clone().removeClass("hidden");
-      currentPost.find(".author-name").text(fbPost.authorName);
-      currentPost.find(".timestamp").text((new Date(fbPost.postTime)).toLocaleString());
-      currentPost.find(".text").text(fbPost.text);
-      $("#posts").prepend(currentPost);
+    var templatePost = $("#posts .post:last"), currentPost, fbPost, posts = [];
+    CHBlog.postsRef.on("value", function(snap) {
+      var fbPosts = snap.val();
+      for (key in fbPosts) {
+        fbPost = fbPosts[key]
+        currentPost = templatePost.clone().removeClass("hidden");
+        currentPost.find(".author-name").text(fbPost.authorName);
+        currentPost.find(".timestamp").text((new Date(fbPost.postTime)).toLocaleString());
+        currentPost.find(".text").text(fbPost.text);
+        posts.unshift(currentPost);
+      }
+      $("#posts").prepend(posts);
     });
   }
 }

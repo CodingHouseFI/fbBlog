@@ -293,3 +293,9 @@ textarea {
   color: #888;
   font-size: 0.85em;
 }
+
+.spritz {
+  text-align: center;
+  font-size: 2em;
+  padding: 1em;
+}
